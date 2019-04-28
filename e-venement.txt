@@ -1,0 +1,140 @@
+linux est un utilisateur et debian mon hostname.
+linux@debian:~$ su
+apt-get install mc openssh-server net-tools -y
+#Commun aux 2 versions
+apt-get install build-essential -y
+apt-get install apache2 apache2-dev -y
+apt-get install git -y
+# Postgres
+apt-get install postgresql -y
+# listen_addresses = '*'
+echo " listen_addresses = '*' " >> /etc/postgresql/9.6/main/postgresql.conf
+# host all all 0.0.0.0/0 trust
+# host all all ::0/0 trust
+echo "host all all 0.0.0.0/0 trust " >> /etc/postgresql/9.6/main/pg_hba.conf
+echo "host all all ::0/0 trust " >> /etc/postgresql/9.6/main/pg_hba.conf
+systemctl restart postgresql
+systemctl restart apache2
+#Commun aux 2 versions
+apt-get install build-essential -y
+apt-get install apache2 apache2-dev -y
+apt-get install git -y
+# Postgres
+apt-get install postgresql -y
+# listen_addresses = '*'
+echo " listen_addresses = '*' " >> /etc/postgresql/9.6/main/postgresql.conf
+# host all all 0.0.0.0/0 trust
+# host all all ::0/0 trust
+echo "host all all 0.0.0.0/0 trust " >> /etc/postgresql/9.6/main/pg_hba.conf
+echo "host all all ::0/0 trust " >> /etc/postgresql/9.6/main/pg_hba.conf
+systemctl restart postgresql
+systemctl restart apache2
+
+On passe a l'utilisateur postgres
+
+su postgres
+
+postgres@debian:/home/linux$
+Installation de la base de donnée.
+Attention evenement est un utilisateur et motdepasse est un mot de passe a remplacer par vos données
+
+psql
+CREATE USER evenement;
+ALTER ROLE evenement WITH CREATEDB;
+ALTER USER evenement WITH ENCRYPTED PASSWORD 'motdepasse' ;
+ALTER USER evenement WITH SUPERUSER;
+CREATE SCHEMA evenement;
+CREATE DATABASE evenement;
+GRANT ALL ON SCHEMA evenement TO evenement;
+GRANT ALL ON ALL TABLES IN SCHEMA evenement TO evenement;
+\q
+exit
+
+Je dois de nouveau me retrouver
+root@debian:/home/linux#
+
+Important.On n'installe pas les 2 versions de Php ! c'est moment de choisir la version voulue.
+# Php7
+apt-get install libapache2-mod-php7.0 php7.0 php7.0-bcmath php7.0-bz2 php7.0-cgi php7.0-cli php7.0-common php7.0-curl php7.0-dba php7.0-dev php7.0-enchant php7.0-fpm php7.0-gd php7.0-gmp php7.0-imap php7.0-interbase php7.0-intl php7.0-json php7.0-ldap php7.0-mbstring php7.0-mcrypt php7.0-mysql php7.0-odbc php7.0-opcache php7.0-pgsql php7.0-phpdbg php7.0-pspell php7.0-readline php7.0-recode php7.0-snmp php7.0-soap php7.0-sqlite3 php7.0-sybase php7.0-tidy php7.0-xml php7.0-xmlrpc php7.0-xsl php7.0-zip -y
+# php ajustement
+apt-get install php-apcu -y
+cat /etc/php/7.0/cli/php.ini |grep -n 'date.timezone'
+echo " date.timezone = Europe/Paris " >> /etc/php/7.0/cli/php.ini
+cat /etc/php/7.0/cli/php.ini |grep -n 'date.timezone'
+cat /etc/php/7.0/apache2/php.ini |grep -n 'memory_limit ='
+sed -i 's/memory_limit = 128M/memory_limit = -512M/g' /etc/php/7.0/apache2/php.ini
+cat /etc/php/7.0/apache2/php.ini |grep -n 'memory_limit ='
+
+Ou
+Pour le Php5 impossible non ,facile.......non on va tricher un peu.Nous somme bien d'accord on n'installe pas les 2 versions !!!!
+
+
+#Php5
+mv /etc/apt/sources.list /etc/apt/sources.list.stretch
+echo " deb http://ftp.debian.org/debian/ jessie main contrib non-free " >> /etc/apt/sources.list
+echo " deb-src http://ftp.debian.org/debian/ jessie main contrib non-free " >> /etc/apt/sources.list
+echo " deb http://security.debian.org/ jessie/updates main contrib non-free " >> /etc/apt/sources.list
+echo " deb-src http://security.debian.org/ jessie/updates main contrib non-free " >> /etc/apt/sources.list
+cat /etc/apt/sources.list
+apt-get update
+apt-get upgrade
+# Installation du php 5 l'option -y n'est pas valable
+apt-get install php5 php5-pgsql php5-gd php5-curl php5-cli
+apt-get install libapache2-mod-php5 php5-common php5-idn php-pear php5-imagick php5-imap php5-json php5-mcrypt php5-memcache php5-mhash php5-mysql php5-pspell php5-recode php5-sqlite php5-tidy php5-xmlrpc php5-xsl
+#
+cat /etc/php5/cli/php.ini |grep -n 'memory_limit'
+cat /etc/php5/cli/php.ini |grep -n 'date.timezone'
+echo " date.timezone = Europe/Paris " >> /etc/php5/cli/php.ini
+cat /etc/php5/cli/php.ini |grep -n 'date.timezone'
+cat /etc/php5/apache2/php.ini |grep -n 'memory_limit ='
+sed -i 's/memory_limit = 128M/memory_limit = -512M/g' /etc/php5/apache2/php.ini
+cat /etc/php5/apache2/php.ini |grep -n 'memory_limit =
+
+On passe a l'installation e-venement 
+
+
+git clone https://github.com/betaglop/e-venement
+# faire attention ->
+cd e-venement
+git submodule init
+git submodule update
+git submodule foreach --recursive git submodule update --init
+cd ..
+mv e-venement /var/www/html/e-venement
+chmod -R 777 /var/www/html/e-venement
+cp /var/www/html/e-venement/config/autoload.inc.php.template /var/www/html/e-venement/config/autoload.inc.php
+cp /var/www/html/e-venement/config/databases.yml.template /var/www/html/e-venement/config/databases.yml
+cp /var/www/html/e-venement/config/project.yml.template /var/www/html/e-venement/config/project.yml
+php /var/www/html/e-venement/lib/vendor/symfony/data/bin/check_configuration.php
+# Attention evenement est un utilisateur et motdepasse est un mot de passe a remplacer par vos données
+cat /var/www/html/e-venement/config/databases.yml|grep -n 'v2'
+cat /var/www/html/e-venement/config/databases.yml|grep -n 'evenement'
+sed -i 's/v2/motdepasse/g' /var/www/html/e-venement/config/databases.yml
+sed -i 's/evenement/evenement/g' /var/www/html/e-venement/config/databases.yml
+# ou éditer le fichier remplacer mcedit par ce que vous voulez
+mcedit /var/www/html/e-venement/config/databases.yml
+# Attention
+cd /var/www/html/e-venement/
+./symfony doctrine:build --all --application=default
+# Attention evenement est un utilisateur et motdepasse est un mot de passe a remplacer par vos données
+./symfony guard:create-user email@test.com evenement motdepasse
+./symfony guard:promote evenement
+./symfony cc
+
+On va gérés la base de donnée depuis notre station
+
+apt-get install phppgadmin -y
+sed -i 's/Require local/Require all granted/g' /etc/apache2/conf-enabled/phppgadmin.conf
+systemctl restart postgresql
+systemctl restart apache2
+
+On se connecte via le navigateur
+http://ADRESSE_IP/e-venement/web
+Pour la version php7 c'est tout
+Pour la version php5 encore un petit effort
+
+# echo "Retour au sources stretch "
+mv /etc/apt/sources.list /etc/apt/sources.list.jessie
+mv /etc/apt/sources.list.stretch /etc/apt/sources.list
+apt-get update
+apt-get upgrade
