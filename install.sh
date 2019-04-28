@@ -109,7 +109,7 @@ sed -i 's/memory_limit = 128M/memory_limit = -512M/g' /etc/php5/apache2/php.ini
 cat /etc/php5/apache2/php.ini |grep -n 'memory_limit ='
 #-------------------------------------------------------------------------------
 # Commun aux 2 versions
-git clone https://github.com/betaglop/e-venement
+git clone https://github.com/e-venement/e-venement 
 # git clone https://github.com/e-venement/e-venement.git
 cd e-venement
 git submodule init
