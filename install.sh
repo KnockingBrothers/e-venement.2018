@@ -50,6 +50,7 @@ CREATE DATABASE evenement;
 GRANT ALL ON SCHEMA evenement TO evenement;
 GRANT ALL ON ALL TABLES IN SCHEMA evenement TO evenement; 
 EOF
+\q
 exit
 # Partie 2 fin
 #Php7---------------------------------------------------------------------------
